@@ -2,14 +2,11 @@ package searchengine.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import searchengine.services.SiteParser;
 
 import javax.persistence.*;
-import java.io.IOException;
-import java.sql.Date;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "sites")
@@ -17,17 +14,12 @@ import java.util.Set;
 @Getter
 public class Site {
 
-
-    public Site(String url){
-        this.url = url;
-    }
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     @Column(nullable = false,columnDefinition = "VARCHAR(255)")
     private String name;
-    @Enumerated()
-    @Column(columnDefinition = "ENUM('INDEXING', 'INDEXED', 'FAILED')")
+    @Enumerated(EnumType.STRING)
     private Status status;
     @Column(name = "status_time",columnDefinition = "DATETIME")
     private Date statusTime;
@@ -36,23 +28,12 @@ public class Site {
     @Column(nullable = false,columnDefinition = "VARCHAR(255)")
     private String url;
 
-    @OneToMany
-    @JoinColumn(name = "site_id")
-    private List<Page> pages;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "siteId", cascade = CascadeType.ALL)
+    private List<Page> pages = new ArrayList<>();
 
-    @OneToMany
-    @JoinColumn(name = "site_id")
-    private  List<Lemma> lemmas;
-    public Set<Site> getPages() throws IOException, InterruptedException {
-        Set<Site> siteSet = new HashSet<>();
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "siteId", cascade = CascadeType.ALL)
+    private  List<Lemma> lemmas = new ArrayList<>();
 
-        for (String link: SiteParser.getLinks(url)){
-            Site newSite = new Site(link);
-            siteSet.add(newSite);
-        }
-
-        return siteSet;
-    }
 
 
 

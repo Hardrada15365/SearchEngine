@@ -1,31 +1,42 @@
 package searchengine.model;
 
 import javax.persistence.*;
+import java.util.LinkedList;
 import java.util.List;
-
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Index;
+
 @Entity
 @Table(name  = "pages")
 @Setter
 @Getter
 
-public class Page {
+public class Page  {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-    @Column(name = "site_id",nullable = false)
-    private int siteId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "site_id", nullable = false, referencedColumnName = "id")
+    private Site siteId;
 
-    @Column(nullable = false,columnDefinition = "TEXT")
+    @Column(nullable = false,columnDefinition = "VARCHAR(256)")
     private String path;
     @Column(nullable = false)
     private int code;
     @Column(nullable = false, columnDefinition = "MEDIUMTEXT")
     private String content;
 
-    @OneToMany
-    @JoinColumn(name = "page_id")
-    private List<searchengine.model.Index> indexes;
+    @OneToMany(mappedBy = "page_id", cascade = CascadeType.ALL)
+    private List<searchengine.model.Index> indexes = new LinkedList<>();
+
+    public Page(Site siteId, String path, int code, String content) {
+        this.siteId = siteId;
+        this.path = path;
+        this.code = code;
+        this.content = content;
+    }
+    public Page(){
+    }
 }
+
+

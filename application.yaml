@@ -17,7 +17,11 @@ spring:
 
 indexing-settings:
   sites:
+    - url: https://dombulgakova.ru/
+      name: Булгаков.ру
     - url: https://www.skillbox.ru
       name: Skillbox
     - url: https://www.playback.ru
       name: PlayBack.Ru
+    - url: https://www.svetlovka.ru/
+      name: Светловка

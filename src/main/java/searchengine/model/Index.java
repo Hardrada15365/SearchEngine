@@ -12,12 +12,14 @@ import java.util.List;
 @Getter
 public class Index {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(nullable = false)
-    private int page_id;
-    @Column(nullable = false)
-    private int lemma_id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "page_id", referencedColumnName = "id")
+    private Page page_id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lemma_id", referencedColumnName = "id")
+    private Lemma lemma_id;
     @Column(name = "rank_", nullable = false, columnDefinition = "float")
     private float rank;
 

@@ -1,39 +1,33 @@
 package searchengine.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.sun.net.httpserver.SimpleFileServer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import searchengine.config.Site;
-import searchengine.config.SitesList;
+import org.springframework.web.bind.annotation.*;
 import searchengine.dto.statistics.StatisticsResponse;
-import searchengine.repository.SiteRepository;
-import searchengine.services.PageJoiner;
-import searchengine.services.SiteTasks;
-import searchengine.services.StatisticsService;
+import searchengine.response.Response;
+import searchengine.services.indexing.IndexService;
+import searchengine.services.indexing.IndexServiceImpl;
+import searchengine.services.indexing.LemmaService;
+import searchengine.services.statistic.StatisticsService;
 
-import java.util.ConcurrentModificationException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ForkJoinPool;
+import java.io.IOException;
+
 
 @RestController
 @RequestMapping("/api")
 public class ApiController  {
 
-    @Autowired
-    private SiteRepository siteRepository;
-    @Autowired
-    private SitesList sitesList;
-
 
     private final StatisticsService statisticsService;
-    private volatile Set<String> AllPages = new HashSet<>();
 
-    public ApiController(StatisticsService statisticsService) {
+    private final IndexService indexService;
+    private final LemmaService lemmaService;
+
+    public ApiController(StatisticsService statisticsService, IndexServiceImpl indexService,LemmaService lemmaService) {
         this.statisticsService = statisticsService;
+        this.indexService = indexService;
+        this.lemmaService = lemmaService;
     }
 
     @GetMapping("/statistics")
@@ -42,15 +36,24 @@ public class ApiController  {
     }
 
     @GetMapping("/startIndexing")
-    public ResponseEntity startIndexing() throws InterruptedException {
-        PageJoiner pageJoiner = null;
-        for (Site site:sitesList.getSites()){
-            pageJoiner = new PageJoiner(site.getUrl());
-            pageJoiner.start();
-        }
-        pageJoiner.join();
-        System.out.println(pageJoiner.getAllPages().size());
+    public Response startIndexing() throws Exception {
+        indexService.startIndexing();
 
-        return new ResponseEntity("Метод работает", HttpStatus.OK);
+        return new Response();
+    }
+
+    @GetMapping("/stopIndexing")
+    public  ResponseEntity stopIndexing(){
+        indexService.stopIndexing();
+        System.out.println("Остановлено?");
+        return new ResponseEntity("Метод работает",HttpStatus.OK);
+    }
+
+    @PostMapping("/indexPage")
+    public ResponseEntity indexPage (@RequestParam(name = "url") String url) throws IOException {
+
+        lemmaService.indexPage(url);
+        System.out.println("Индексация страницы");
+        return new ResponseEntity("Метод работает",HttpStatus.OK);
     }
 }
