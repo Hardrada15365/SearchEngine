@@ -8,4 +8,7 @@ public interface PageRepository extends CrudRepository<Page,Integer> {
 
     @Transactional
     Page findByPath(String url);
+
+    @Transactional
+    boolean existsByPath(String path);
 }

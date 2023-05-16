@@ -1,10 +1,10 @@
 package searchengine.controllers;
 
-import com.sun.net.httpserver.SimpleFileServer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import searchengine.dto.statistics.StatisticsResponse;
+import searchengine.response.ErrorResponse;
 import searchengine.response.Response;
 import searchengine.services.indexing.IndexService;
 import searchengine.services.indexing.IndexServiceImpl;
@@ -16,7 +16,7 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/api")
-public class ApiController  {
+public class ApiController {
 
 
     private final StatisticsService statisticsService;
@@ -24,7 +24,9 @@ public class ApiController  {
     private final IndexService indexService;
     private final LemmaService lemmaService;
 
-    public ApiController(StatisticsService statisticsService, IndexServiceImpl indexService,LemmaService lemmaService) {
+    private boolean isIndexingStart;
+
+    public ApiController(StatisticsService statisticsService, IndexServiceImpl indexService, LemmaService lemmaService) {
         this.statisticsService = statisticsService;
         this.indexService = indexService;
         this.lemmaService = lemmaService;
@@ -37,23 +39,26 @@ public class ApiController  {
 
     @GetMapping("/startIndexing")
     public Response startIndexing() throws Exception {
-        indexService.startIndexing();
+        return indexService.startIndexing();
+    }
+
+    @GetMapping("/stopIndexing")
+    public Response stopIndexing() {
+        return indexService.stopIndexing();
+
+    }
+
+    @PostMapping("/indexPage")
+    public Response indexPage(@RequestParam(name = "url") String url) throws IOException {
+
+        lemmaService.indexPage(url);
+        System.out.println("Индексация страницы");
 
         return new Response();
     }
 
-    @GetMapping("/stopIndexing")
-    public  ResponseEntity stopIndexing(){
-        indexService.stopIndexing();
-        System.out.println("Остановлено?");
-        return new ResponseEntity("Метод работает",HttpStatus.OK);
-    }
-
-    @PostMapping("/indexPage")
-    public ResponseEntity indexPage (@RequestParam(name = "url") String url) throws IOException {
-
-        lemmaService.indexPage(url);
-        System.out.println("Индексация страницы");
-        return new ResponseEntity("Метод работает",HttpStatus.OK);
+    @GetMapping("search")
+    public Response search() {
+        return new Response();
     }
 }

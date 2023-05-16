@@ -8,9 +8,7 @@ public interface IndexService {
 
     Response stopIndexing();
 
-    Response indexPage();
 
-    Response statistics();
 
-    Response search();
+
 }

@@ -23,10 +23,14 @@ public class SiteIndexer implements Runnable {
 
     private PageIndexer pageIndexer;
     private Site site = new Site();
+
+
+
+    private static boolean isIndexingRun;
+
     @Override
     public void run(){
-
-
+        isIndexingRun = true;
         site.setName(csite.getName());
         site.setStatus(Status.INDEXING);
         site.setStatusTime(new Date());
@@ -57,19 +61,18 @@ public class SiteIndexer implements Runnable {
             for (PageDto pageDto:pages){
                 pageList.add(new Page(site,pageDto.path(),pageDto.code(),pageDto.content()));
 
-        }}
-
-    }
-
-    public void clearRepositories(){
-        siteRepository.deleteAll();
-        pageRepository.deleteAll();
+        }
+        }
+        isIndexingRun = false;
     }
 
     public void stopIndexing(){
         pageIndexer.setFlag(false);
     }
 
+    public boolean isIndexingRun() {
+        return isIndexingRun;
+    }
 }
 
 
