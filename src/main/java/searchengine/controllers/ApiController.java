@@ -1,14 +1,12 @@
 package searchengine.controllers;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import searchengine.dto.statistics.StatisticsResponse;
-import searchengine.response.ErrorResponse;
 import searchengine.response.Response;
-import searchengine.services.indexing.IndexService;
-import searchengine.services.indexing.IndexServiceImpl;
-import searchengine.services.indexing.LemmaService;
+import searchengine.services.IndexService;
+import searchengine.services.IndexServiceImpl;
+import searchengine.services.LemmaService;
 import searchengine.services.statistic.StatisticsService;
 
 import java.io.IOException;
@@ -51,7 +49,7 @@ public class ApiController {
     @PostMapping("/indexPage")
     public Response indexPage(@RequestParam(name = "url") String url) throws IOException {
 
-        lemmaService.indexPage(url);
+        indexService.indexPage(url);
         System.out.println("Индексация страницы");
 
         return new Response();

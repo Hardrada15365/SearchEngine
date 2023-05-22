@@ -1,4 +1,4 @@
-package searchengine.services.indexing.page;
+package searchengine.indexingTools.page;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import searchengine.dto.indexing.PageDto;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.RecursiveTask;
 

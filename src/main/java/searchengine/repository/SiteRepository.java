@@ -11,4 +11,7 @@ public interface SiteRepository extends CrudRepository<Site, Integer> {
 
     @Transactional
     Site findByUrl(String url);
+
+    @Transactional
+    Site findById(int id);
 }

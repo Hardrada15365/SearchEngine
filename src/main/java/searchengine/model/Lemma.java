@@ -12,8 +12,12 @@ import java.util.List;
 @Setter
 @Getter
 public class Lemma {
+    public Lemma(){}
 
-    public Lemma (String lemma, Site siteId){
+    public Lemma (String lemma, Site siteId, int frequency){
+        this.lemma  = lemma;
+        this.siteId = siteId;
+        this.frequency = frequency;
 
     }
     @Id
