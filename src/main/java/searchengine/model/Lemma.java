@@ -2,6 +2,8 @@ package searchengine.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ public class Lemma {
     private int id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "site_id", referencedColumnName = "id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Site siteId;
     @Column(nullable = false, columnDefinition = "VARCHAR(255)")
     private String lemma;
@@ -46,8 +49,4 @@ public class Lemma {
         return siteId == lemma1.siteId && lemma.equals(lemma1.lemma);
     }
 
-    public void setIndexes(List<Index> indexes) {
-        this.indexes = indexes;
-        indexes.forEach(index->index.setLemma_id(this));
-    }
 }

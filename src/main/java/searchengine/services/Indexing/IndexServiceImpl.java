@@ -1,13 +1,9 @@
-package searchengine.services;
+package searchengine.services.Indexing;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import searchengine.config.Site;
 import searchengine.config.SitesList;
-import searchengine.indexingTools.lemma.Lemmatizator;
-import searchengine.model.Index;
-import searchengine.model.Lemma;
-import searchengine.model.Page;
 import searchengine.repository.IndexRepository;
 import searchengine.repository.LemmaRepository;
 import searchengine.repository.PageRepository;
@@ -17,9 +13,6 @@ import searchengine.response.Response;
 import searchengine.indexingTools.site.SiteIndexer;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -42,14 +35,17 @@ public class IndexServiceImpl implements IndexService {
     @Override
     public Response startIndexing() throws Exception {
 
+        siteRepository.deleteAll();
+        pageRepository.deleteAll();
+        lemmaRepository.deleteAll();
+        indexRepository.deleteAll();
+
+
         if (!isIndexingStart) {
             executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
             for (Site site : sitesList.getSites()) {
-                siteIndexer = new SiteIndexer(site, siteRepository, pageRepository, lemmaRepository, indexRepository);
-                siteRepository.deleteAll();
-                pageRepository.deleteAll();
-                lemmaRepository.deleteAll();
-                indexRepository.deleteAll();
+                siteIndexer = new SiteIndexer(site, siteRepository, pageRepository,lemmaRepository,indexRepository);
                 isIndexingStart = siteIndexer.isIndexingRun();
                 executorService.submit(siteIndexer);
             }
@@ -70,14 +66,27 @@ public class IndexServiceImpl implements IndexService {
             return new Response();
         } else {
             return new ErrorResponse("Индексация не запущенна!");
+
         }
     }
 
     public Response indexPage(String urlPage) throws IOException {
+        boolean isUrlFromBaseSites = false;
+        for (Site site : sitesList.getSites()) {
+            if (urlPage.contains(site.getUrl())){
+                isUrlFromBaseSites = true;
+            }
+        }
+
+        if (!isUrlFromBaseSites){
         siteIndexer.indexPage(urlPage);
-        return new Response();
+            return new Response();
+        }else{
+            return  new ErrorResponse("Данная страница находится за пределами сайтов, \n" +
+                    "указанных в конфигурационном файле");
+        }
+
+    }
+
+
 }
-}
-
-
-

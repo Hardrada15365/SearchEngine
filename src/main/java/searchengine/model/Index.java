@@ -2,9 +2,11 @@ package searchengine.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import java.util.List;
+
 
 @Entity
 @Table(name = "indexes_")
@@ -16,9 +18,11 @@ public class Index {
     private int id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "page_id", referencedColumnName = "id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Page page_id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lemma_id", referencedColumnName = "id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Lemma lemma_id;
     @Column(name = "rank_", nullable = false, columnDefinition = "float")
     private float rank;

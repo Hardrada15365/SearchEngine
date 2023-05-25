@@ -7,6 +7,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.List;
 
 public class Lemmatizator {
 
-    private String url;
+    private String query;
     private final LuceneMorphology luceneMorph = new RussianLuceneMorphology();
 
 
@@ -22,13 +23,27 @@ public class Lemmatizator {
 
     private static final String notRussianWords = "[^а-яА-Я ]";
 
-    private final Document document;
+    private  Document document;
 
-    public Lemmatizator(String url) throws IOException {
-        this.url = url;
-        document = Jsoup.connect(url)
+    public Lemmatizator(String query) throws IOException {
+        this.query = query;
+        if (isUrl(query)){
+        document = Jsoup.connect(query)
                 .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
                 .referrer("http://www.google.com").get();
+
+            this.query = document.text();}
+
+    }
+
+    public boolean isUrl(String query){
+        try {
+            URL url = new URL(query);
+            url.toURI();
+            return true;
+        }catch(Exception e){
+            return false;
+        }
     }
 
     public String getContent(){
@@ -41,14 +56,14 @@ public class Lemmatizator {
     }
 
     public String[] russianWords() throws IOException {
-        String text = document.text();
-        text = text.toLowerCase()
+
+        query = query.toLowerCase()
                 .replace("ё","е").
                 replaceAll(notRussianWords, "")
                 .replaceAll("\\s+", " ");
 
 
-        return text.split(" ");
+        return query.split(" ");
     }
 
     public boolean isWordFunctional(String word) throws IOException {
@@ -103,6 +118,5 @@ public class Lemmatizator {
         }
         return lemmas;
     }
-
 
 }

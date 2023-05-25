@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name  = "pages")
@@ -13,10 +15,11 @@ import lombok.Setter;
 
 public class Page  {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "site_id", nullable = false, referencedColumnName = "id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Site siteId;
 
     @Column(nullable = false,columnDefinition = "VARCHAR(256)")
@@ -26,7 +29,7 @@ public class Page  {
     @Column(nullable = false, columnDefinition = "MEDIUMTEXT")
     private String content;
 
-    @OneToMany(mappedBy = "page_id", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "page_id")
     private List<searchengine.model.Index> indexes = new LinkedList<>();
 
     public Page(Site siteId, String path, int code, String content) {

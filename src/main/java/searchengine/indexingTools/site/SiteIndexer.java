@@ -43,38 +43,38 @@ public class SiteIndexer implements Runnable {
         pageIndexer = new PageIndexer(new ArrayList<>(),site.getUrl(),new ArrayList<>());
         List<PageDto> pages = new ForkJoinPool().invoke(pageIndexer);
 
-        List<Page> pageList = new ArrayList<>();
-
-        Lemmatizator lemmatizator;
         Page page;
+        List <Page> pageList = new ArrayList<>();
         if (pageIndexer.getFlag()){
-        site.setStatus(Status.INDEXED);
-        site.setStatusTime(new Date());
-        site.setLastError("Ошибок нет");
-        siteRepository.save(site);
-
-
-        for (PageDto pageDto:pages){
-            page = new Page(site,pageDto.path(),pageDto.code(),pageDto.content());
-            pageList.add(page);
-            try {
-                indexPage(page.getPath());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        pageRepository.saveAll(pageList);
-        }else if(!pageIndexer.getFlag()){
-            site.setStatus(Status.FAILED);
+            site.setStatus(Status.INDEXED);
             site.setStatusTime(new Date());
-            site.setLastError("Остановлено пользователем");
+            site.setLastError("Ошибок нет");
             siteRepository.save(site);
 
             for (PageDto pageDto:pages){
                 page = new Page(site,pageDto.path(),pageDto.code(),pageDto.content());
                 pageList.add(page);
-                indexPage(page.getPath());
+            }
+        }else if(!pageIndexer.getFlag()){
+            site.setStatus(Status.FAILED);
+            site.setStatusTime(new Date());
+            site.setLastError("Остановлено пользователем");
+
+            for (PageDto pageDto:pages){
+                page = new Page(site,pageDto.path(),pageDto.code(),pageDto.content());
+                pageList.add(page);
+
+            }
         }
+        pageRepository.saveAll(pageList);
+        try {
+        for (Page page1: pageList){
+
+                indexPage(page1.getPath());
+
+        }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         isIndexingRun = false;
     }
@@ -89,7 +89,6 @@ public class SiteIndexer implements Runnable {
 
     public void indexPage(String urlPage) throws IOException {
         Lemmatizator lemmatizator = new Lemmatizator(urlPage);
-
         if (pageRepository.existsByPath(urlPage)) {
             Page oldPage = pageRepository.findByPath(urlPage);
             searchengine.model.Site site = siteRepository.findById(oldPage.getSiteId().getId());
@@ -115,18 +114,20 @@ public class SiteIndexer implements Runnable {
 
                     lemmaRepository.delete(oldLemma);
 
-                }else {
+                    lemmaRepository.save(lemma);
+                    indexRepository.save(index);
+                }else if(!lemmaRepository.existsByLemmaAndSiteId(key,site)){
                 lemma = new Lemma(key,site,1);
                 index = new Index(page,rank,lemma);
 
-                }
                 lemmaRepository.save(lemma);
-                indexRepository.save(index);
+                indexRepository.save(index);}
 
             }
     }
     }
-}
 
+
+}
 
 
