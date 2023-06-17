@@ -22,5 +22,10 @@ public interface SiteRepository extends JpaRepository<Site, Integer> {
     void delete();
 
 
+    @Override
+    @Transactional
+    void deleteAll();
+
+
 
 }

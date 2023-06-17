@@ -2,9 +2,16 @@ package searchengine.services.search;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import searchengine.config.SitesList;
 import searchengine.indexingTools.lemma.Lemmatizator;
+import searchengine.model.Page;
+import searchengine.repository.IndexRepository;
+import searchengine.repository.LemmaRepository;
+import searchengine.repository.PageRepository;
+import searchengine.repository.SiteRepository;
 import searchengine.response.Response;
 import searchengine.response.SearchResponse;
+import searchengine.searchTool.Search;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,15 +21,29 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SearchServiceImpl implements SearchService {
 
+    private  final SiteRepository siteRepository;
+    private  final PageRepository pageRepository;
+
+    private  final LemmaRepository lemmaRepository;
+    private  final IndexRepository indexRepository;
+
+    private  final SitesList sitesList;
+
+
     @Override
     public Response search(String userQuery) throws IOException {
 
-        Lemmatizator lemmatizator = new Lemmatizator(userQuery);
 
-        List<String> list = new ArrayList<>(lemmatizator.getLemmas().keySet());
+        Search search = new Search(siteRepository,pageRepository,lemmaRepository,indexRepository,sitesList,userQuery);
 
-        System.out.println(list);
 
-        return new SearchResponse(list);
+        System.out.println(search.filterLemmasByFrequency());
+        System.out.println(search.sortByPercent());
+        for (Page page : search.findPagesByLemma()){
+            System.out.println(page.getPath());
+        }
+
+        search.relevanceCalculation();
+        return new Response();
     }
 }

@@ -2,6 +2,7 @@ package searchengine.services.Indexing;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import searchengine.config.Site;
 import searchengine.config.SitesList;
 import searchengine.repository.IndexRepository;
@@ -34,13 +35,7 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public Response startIndexing() throws Exception {
-
-        siteRepository.deleteAll();
-        pageRepository.deleteAll();
-        lemmaRepository.deleteAll();
-        indexRepository.deleteAll();
-
-
+       clearAllRepositories();
         if (!isIndexingStart) {
             executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
@@ -87,6 +82,16 @@ public class IndexServiceImpl implements IndexService {
         }
 
     }
+
+    private void clearAllRepositories(){
+        indexRepository.delete();
+        pageRepository.delete();
+        lemmaRepository.delete();
+        siteRepository.delete();
+    }
+
+
+
 
 
 }

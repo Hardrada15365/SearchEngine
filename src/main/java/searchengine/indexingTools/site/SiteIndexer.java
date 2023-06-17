@@ -59,6 +59,7 @@ public class SiteIndexer implements Runnable {
             site.setStatus(Status.FAILED);
             site.setStatusTime(new Date());
             site.setLastError("Остановлено пользователем");
+            siteRepository.save(site);
 
             for (PageDto pageDto:pages){
                 page = new Page(site,pageDto.path(),pageDto.code(),pageDto.content());

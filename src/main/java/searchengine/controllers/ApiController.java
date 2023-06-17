@@ -59,4 +59,5 @@ public class ApiController {
         System.out.println("Поиск");
         return searchService.search(query);
     }
+
 }
